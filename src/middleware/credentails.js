@@ -1,4 +1,4 @@
-import { allowedOrigins } from "../config/cors-config";
+import { allowedOrigins } from "../config/cors-config.js";
 
 // The Access-Control-Allow-Credentials response header tells browsers whether
 // to expose the response to the frontend JavaScript code when the request's
