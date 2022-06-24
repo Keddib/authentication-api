@@ -1,10 +1,11 @@
 import { Router } from "express";
-import users from '../../data/users.js';
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
 
 const router = Router();
 
 var data = {
-  users: users,
+  users: require('../data/users.json'),
   setUsers: function setUsers(data) {
     this.users = data;
   }
@@ -23,7 +24,7 @@ router.route('/')
       return;
     }
     const newUser = {
-      id: data.users.at(-1).id + 1 || 1,
+      id: data.users.at(-1)?.id + 1 || 1,
       name: req.body.name,
       username: req.body.username
     };

@@ -2,13 +2,9 @@ import { format } from 'date-fns';
 import { v4 as uuid } from 'uuid';
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
-
+import { __dirname } from '../config/dirname.js';
 
 const fsPromises = fs.promises;
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const logEvents = async (message, logName) => {
   const dateTime = `${format(new Date(), 'yyyyMMdd\tHH:mm:ss')}`;

@@ -2,9 +2,8 @@ import dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
 import errorHundler from './middleware/error-hundler.js'
-import auth from './routes/api/auth.js';
-import users from './routes/api/users.js';
-import root from './routes/root.js';
+import auth from './routes/auth.js';
+import users from './routes/users.js';
 import { logger } from './middleware/event-logger.js';
 import corsOptions from './config/cors-config.js'
 
@@ -23,8 +22,6 @@ App.use(express.json());
 
 
 // routes
-App.use('/', root);
-
 App.use('/auth', auth);
 
 App.use('/users', users);
