@@ -10,6 +10,7 @@ import users from './routes/users.js';
 import { logger } from './middleware/event-logger.js';
 import corsOptions from './config/cors-config.js'
 import verifyJWT from "./middleware/verify-jwt.js";
+import credentials from "./middleware/credentails.js"
 
 dotenv.config();
 const App = express();
@@ -17,6 +18,10 @@ const PORT = process.env.PORT || 3500;
 
 // custom middleware logger
 App.use(logger);
+
+// credentials middleware
+App.use(credentials);
+
 
 // Cross-origin resource sharing
 

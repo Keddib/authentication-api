@@ -79,7 +79,12 @@ router.route('/')
       // check if user already exict
       const [accessToken, refreshToken] = getJWTtokens(newUser.username);
 
-      res.cookie('jwt', refreshToken, { httpOnly: true, maxAge: 24 * 60 * 60 * 1000 });
+      res.cookie('jwt', refreshToken, {
+        httpOnly: true,
+        sameSite: 'none',
+        secure: true,
+        maxAge: 24 * 60 * 60 * 1000
+      });
 
       let unwrap = ({ id, username, email, image_url }) => ({ id, username, email, image_url });
       let resUser = unwrap(newUser);
