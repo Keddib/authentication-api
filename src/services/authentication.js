@@ -22,6 +22,7 @@ async function getAccessToken(code) {
   let { data } = await axios.post(process.env.AC_URI, {}, {
     params: params
   });
+  console.log(data.accessToken);
   // if success return access token
   // errors will be catched out of scope
   return data.access_token;
@@ -40,19 +41,12 @@ async function getUserData(accessToken) {
   // get only info we are interested in
   let user = {
     id: data.id,
+    username: data.login,
     email: data.email,
-    login: data.login,
     image_url: data.new_image_url
   }
   return user;
 }
 
 
-export { getAccessToken, getUserData }
-
-var usrEX = {
-  "id": 53954,
-  "email": "keddib@student.1337.ma",
-  "login": "keddib",
-  "new_image_url": "https://profile.intra.42.fr/users/keddib/photo",
-}
+export { getAccessToken, getUserData };

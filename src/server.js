@@ -1,11 +1,15 @@
 import dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import errorHundler from './middleware/error-hundler.js'
 import auth from './routes/auth.js';
+import refresh from './routes/refresh.js';
+import logout from './routes/logout.js';
 import users from './routes/users.js';
 import { logger } from './middleware/event-logger.js';
 import corsOptions from './config/cors-config.js'
+import verifyJWT from "./middleware/verify-jwt.js";
 
 dotenv.config();
 const App = express();
@@ -18,12 +22,22 @@ App.use(logger);
 
 App.use(cors(corsOptions));
 
+// midlleware for json data
 App.use(express.json());
 
+// middleware for cookies
 
-// routes
+App.use(cookieParser());
+
+
+// auth routes
 App.use('/auth', auth);
+App.use('/auth/refresh', refresh);
+App.use('/auth/logout', logout);
 
+// users route
+
+App.use(verifyJWT);
 App.use('/users', users);
 
 App.all('*', (req, res) => {

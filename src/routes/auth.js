@@ -10,29 +10,50 @@ const require = createRequire(import.meta.url);
 const router = Router();
 
 
-
-function getJWTtokens(username) {
-  const accessToken = jwt.sign(
-    { "login": username },
-    process.env.ACCESS_TOKEN_SECRET,
-    { expiresIn: '30s' }
-  );
-  const refreshToken = jwt.sign(
-    { "login": username },
-    process.env.REFRESH_TOKEN_SECRET,
-    { expiresIn: '1d ' }
-  );
-
-  return [accessToken, refreshToken];
-}
-
-
 var data = {
   users: require('../data/users.json'),
   setUsers: function setUsers(data) {
     this.users = data;
   }
 }
+
+function getJWTtokens(username) {
+  const accessToken = jwt.sign(
+    { "username": username },
+    process.env.ACCESS_TOKEN_SECRET,
+    { expiresIn: '120s' }
+  );
+  const refreshToken = jwt.sign(
+    { "username": username },
+    process.env.REFRESH_TOKEN_SECRET,
+    { expiresIn: "1d" }
+  );
+  return [accessToken, refreshToken];
+}
+
+
+async function addUserToData(user, token) {
+  let isAdded = false;
+  const exist = data.users.find((usr) => {
+    return usr.id == user.id;
+  });
+
+  if (exist) {
+    exist.refreshToken = token;
+  } else {
+    user.refreshToken = token;
+    data.setUsers([...data.users, user]);
+    isAdded = true;
+  }
+  await fsPromises.writeFile(
+    path.join(__dirname, "..", "data", "users.json"),
+    JSON.stringify(data.users)
+  );
+  // return false if already excist or true if added
+  return isAdded;
+}
+
+
 
 router.route('/')
   .get((req, res) => {
@@ -49,44 +70,33 @@ router.route('/')
       res.status(400).json({ 'Bad Request': 'code is required' });
       return;
     }
+
     try {
       const aToken = await getAccessToken(code);
       const newUser = await getUserData(aToken);
       // if user already exict return user data with 200 OK status
       // otherwise add user return  user data with 201 created status
       // check if user already exict
-      const exist = data.users.find((usr) => {
-        return usr.id == newUser.id;
-      });
-
       const [accessToken, refreshToken] = getJWTtokens(newUser.username);
 
-      if (exist) {
-        exist.refreshToken = refreshToken;
-        await fsPromises.writeFile(
-          path.join(__dirname, "..", "data", "users.json"),
-          JSON.stringify(data.users)
-        );
-        console.log(data.users);
-        res.json(newUser);
-        return;
-      }
+      res.cookie('jwt', refreshToken, { httpOnly: true, maxAge: 24 * 60 * 60 * 1000 });
 
-      // add user to data
-      let addedUser = newUser;
-      addedUser.refreshToken = refreshToken;
-      data.setUsers([...data.users, addedUser]);
-      await fsPromises.writeFile(
-        path.join(__dirname, "..", "data", "users.json"),
-        JSON.stringify(data.users)
-      );
-      console.log(data.users);
-      return res.status(201).json(newUser);
+      let unwrap = ({ id, username, email, image_url }) => ({ id, username, email, image_url });
+      let resUser = unwrap(newUser);
+
+      let added = await addUserToData(newUser, refreshToken);
+      if (added) {
+        return res.status(201).json({ ...resUser, accessToken });
+      }
+      res.json({ ...resUser, accessToken });
 
     } catch (e) {
       if (e.response) {
         res.status(e.response.status).json(e.response.data);
         return;
+      }
+      if (!e.message) {
+        e.message = 'server enterrnal error';
       }
       res.status(500).json({ message: e.messaage });
     }
