@@ -21,7 +21,7 @@ function getJWTtokens(username) {
   const accessToken = jwt.sign(
     { "username": username },
     process.env.ACCESS_TOKEN_SECRET,
-    { expiresIn: '120s' }
+    { expiresIn: '2h' }
   );
   const refreshToken = jwt.sign(
     { "username": username },
@@ -50,7 +50,7 @@ async function addUserToData(user, token) {
     JSON.stringify(data.users)
   );
   // return false if already excist or true if added
-  return isAdded;
+  return [isAdded, exist];
 }
 
 
@@ -82,18 +82,18 @@ router.route('/')
       res.cookie('jwt', refreshToken, {
         httpOnly: true,
         sameSite: 'none',
-        secure: true,
         maxAge: 24 * 60 * 60 * 1000
       });
 
       let unwrap = ({ id, username, email, image_url }) => ({ id, username, email, image_url });
       let resUser = unwrap(newUser);
 
-      let added = await addUserToData(newUser, refreshToken);
+      let [added, exict] = await addUserToData(newUser, refreshToken);
+      console.log('isAdded = ', added);
       if (added) {
         return res.status(201).json({ ...resUser, accessToken });
       }
-      res.json({ ...resUser, accessToken });
+      res.json({ ...exict, accessToken, refreshToken: '' });
 
     } catch (e) {
       if (e.response) {

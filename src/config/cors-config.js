@@ -3,6 +3,7 @@
 
 export const allowedOrigins = [
   'http://localhost:80',
+  'http://localhost',
   'http://localhost:3500',
   'https://www.pongy.com'
 ];

@@ -24,7 +24,6 @@ async function hundleLogout(req, res) {
     res.clearCookie('jwt', {
       httpOnly: true,
       sameSite: 'none',
-      secure: true, // secur true
     });
 
     return res.sendStatus(204);
@@ -42,7 +41,6 @@ async function hundleLogout(req, res) {
   res.clearCookie('jwt', {
     httpOnly: true,
     sameSite: 'none',
-    secure: true, // secur true
   });
 
   res.sendStatus(204);

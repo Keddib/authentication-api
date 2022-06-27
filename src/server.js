@@ -28,12 +28,16 @@ App.use(credentials);
 App.use(cors(corsOptions));
 
 // midlleware for json data
-App.use(express.json());
+App.use(express.json({ limit: '50mb' }));
+App.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // middleware for cookies
 
 App.use(cookieParser());
 
+// public routes
+
+App.use('/upload', express.static('./upload'));
 
 // auth routes
 App.use('/auth', auth);
