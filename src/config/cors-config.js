@@ -10,8 +10,7 @@ export const allowedOrigins = [
 
 const corsOptions = {
   origin: (origin, callback) => { // first param (origin) is the domain that requested the resource
-    console.log(origin);
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) { // if the domain is in the whiteList
+    if (!origin || allowedOrigins.includes(origin)) { // if the domain is in the whiteList
       callback(null, true); // set error to null and allow to true
     } else {
       callback(new Error('Not Allowed by Cors'));
